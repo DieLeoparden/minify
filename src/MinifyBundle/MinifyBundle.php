@@ -15,4 +15,9 @@ class MinifyBundle extends AbstractPimcoreBundle
     {
         return self::PACKAGE_NAME;
     }
+    
+    public function getVersion()
+    {
+        return 'v1.0.1';
+    }
 }
