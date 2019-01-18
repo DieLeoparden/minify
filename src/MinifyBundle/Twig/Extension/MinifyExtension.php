@@ -261,7 +261,7 @@ final class MinifyExtension extends \Twig_Extension
             switch ($key) {
                 case 'internal':
                     // build stylesheet minify
-                    if (is_array($value['css'])) {
+                    if (isset($value['css'])) {
                         if (PIMCORE_DEBUG && file_exists($this->getOutputPath() . '/css/' . $this->getOutput() . '.css')) {
                             unlink($this->getOutputPath() . '/css/' . $this->getOutput() . '.css');
                         }
@@ -275,7 +275,7 @@ final class MinifyExtension extends \Twig_Extension
                                     try {
                                         // set less variables to minify
                                         $less = new lessc;
-                                        if (sizeof($this->getLessVariables()) > 0) {
+                                        if (is_array($this->getLessVariables())) {
                                             $less->setVariables($this->getLessVariables());
                                         }
                                         // compile file
@@ -301,7 +301,7 @@ final class MinifyExtension extends \Twig_Extension
                         );
                     }
                     // build javascript minify
-                    if (is_array($value['js'])) {
+                    if (isset($value['js'])) {
                         if (PIMCORE_DEBUG && file_exists($this->getOutputPath() . '/js/' . $this->getOutput() . '.js')) {
                             unlink($this->getOutputPath() . '/js/' . $this->getOutput() . '.js');
                         }

@@ -38,7 +38,7 @@ class DocumentRenderListener
         // attempt to render the actual response
         $templating = $this->container->get('templating');
 
-        if (!$template->isStreamable()) {
+        if (!$template->isStreamable() and !$request->attributes->get('_editmode')) {
             $template_content = $templating->renderResponse($template->getTemplate(), $parameters)->getContent();
 
             $htmlMin = new HtmlMin();
