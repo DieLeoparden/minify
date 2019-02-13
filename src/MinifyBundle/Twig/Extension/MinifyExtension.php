@@ -1,8 +1,11 @@
 <?php
+/**
+ * Pimcore MinifyBundle
+ * Copyright (c) Die Leoparden e.K.
+ */
 
 namespace MinifyBundle\Twig\Extension;
 
-use Pimcore\Model\Document;
 use lessc;
 use MatthiasMullie\Minify\CSS;
 use MatthiasMullie\Minify\JS;
@@ -11,29 +14,29 @@ use Twig\Markup;
 final class MinifyExtension extends \Twig_Extension
 {
     /**
-     * @var array $minifyData
+     * @var array
      */
     private $minifyData;
 
     /**
-     * @var $lessVariables
+     * @var
      */
     private $lessVariables;
 
     /**
-     * @var $async
+     * @var
      */
     private $async = false;
 
     /**
-     * @var $media
+     * @var
      */
-    private $media = "all";
+    private $media = 'all';
 
     /**
-     * @var $output_name
+     * @var
      */
-    private $output = "output";
+    private $output = 'output';
 
     /**
      * @return array|\Twig_Function[]
@@ -128,29 +131,23 @@ final class MinifyExtension extends \Twig_Extension
     }
 
     /**
-     * @return string
-     */
-    private function getOutputPath()
-    {
-        return dirname(__DIR__, 2) . '/Resources/public';
-    }
-
-    /**
      * @param $minifyData
-     * @param array $lessVariables
-     * @param bool $async
+     * @param array  $lessVariables
+     * @param bool   $async
      * @param string $media
      * @param string $output_name
-     * @return bool|Markup|void
+     *
      * @throws \Exception
+     *
+     * @return bool|Markup|void
      */
     public function getMinifyLinks(
         $minifyData,
-        $config = array()
-    )
-    {
-        if (!is_array($minifyData))
+        $config = []
+    ) {
+        if (!is_array($minifyData)) {
             return;
+        }
 
         // set minify data
         $this->setMinifyData($minifyData);
@@ -191,34 +188,40 @@ final class MinifyExtension extends \Twig_Extension
                 if ($type == 'internal') {
                     foreach ($output as $key => $data) {
                         if ($key == 'css') {
-                            $minifyOutput .= '<link rel="stylesheet" type="text/css" href="' . $data['file'] . '?' . $data['filemtime'] . '" media="' . $this->getMedia() .'" >';
-                        }
-                        elseif ($key == 'js') {
+                            $minifyOutput .= '<link rel="stylesheet" type="text/css" href="' . $data['file'] . '?' . $data['filemtime'] . '" media="' . $this->getMedia() . '" >';
+                        } elseif ($key == 'js') {
                             $minifyOutput .= '<script type="text/javascript" src="' . $data['file'] . '?' . $data['filemtime'] . '"' . ($this->getAsync() ? ' async' : '') . '></script>';
                         }
                     }
-                }
-                elseif ($type == 'external') {
+                } elseif ($type == 'external') {
                     foreach ($output as $key => $data) {
                         if ($key == 'css') {
-                            $minifyOutput .= '<link rel="stylesheet" type="text/css" href="' . $data['file'] . '" media="' . $this->getMedia() .'" >';
-                        }
-                        elseif ($key == 'js') {
-                            $minifyOutput .= '<script type="text/javascript" src="' . $data['file'] . '" ' . ($this->getAsync()) ? 'async' : ''  .'></script>';
+                            $minifyOutput .= '<link rel="stylesheet" type="text/css" href="' . $data['file'] . '" media="' . $this->getMedia() . '" >';
+                        } elseif ($key == 'js') {
+                            $minifyOutput .= '<script type="text/javascript" src="' . $data['file'] . '" ' . ($this->getAsync()) ? 'async' : '' . '></script>';
                         }
                     }
                 }
             }
+
             return $minifyOutput;
         }
 
         return false;
+    }
 
+    /**
+     * @return string
+     */
+    private function getOutputPath()
+    {
+        return dirname(__DIR__, 2) . '/Resources/public';
     }
 
     /**
      * @param $data
      * @param string $less
+     *
      * @return bool|string|void
      */
     private function getDataType($data, $less = 'css')
@@ -246,8 +249,10 @@ final class MinifyExtension extends \Twig_Extension
 
     /**
      * @param $data
-     * @return array|void
+     *
      * @throws \Exception
+     *
+     * @return array|void
      */
     private function buildMinifyOutput($data)
     {
@@ -255,7 +260,7 @@ final class MinifyExtension extends \Twig_Extension
             return;
         }
 
-        $output = array();
+        $output = [];
 
         foreach ($data as $key => $value) {
             switch ($key) {
@@ -271,10 +276,10 @@ final class MinifyExtension extends \Twig_Extension
                             // build minifier object
                             $minifier = new CSS();
                             foreach ($value['css'] as $stylesheet) {
-                                if ($this->getDataType($stylesheet, 'less') == 'less'){
+                                if ($this->getDataType($stylesheet, 'less') == 'less') {
                                     try {
                                         // set less variables to minify
-                                        $less = new lessc;
+                                        $less = new lessc();
                                         if (is_array($this->getLessVariables())) {
                                             $less->setVariables($this->getLessVariables());
                                         }
@@ -285,8 +290,7 @@ final class MinifyExtension extends \Twig_Extension
                                     } catch (\Exception $e) {
                                         throw new \Exception('Wrong Less Format');
                                     }
-                                }
-                                else {
+                                } else {
                                     // add stylesheet to minifyer
                                     $minifier->add($stylesheet);
                                 }
@@ -295,10 +299,10 @@ final class MinifyExtension extends \Twig_Extension
                             $minifier->minify($this->getOutputPath() . '/css/' . $this->getOutput() . '.css');
                         }
                         // build output array
-                        $output['internal']['css'] = array(
+                        $output['internal']['css'] = [
                             'filemtime' => filemtime($this->getOutputPath() . '/css/' . $this->getOutput() . '.css'),
-                            'file' => '/bundles/minify/css/' . $this->getOutput() . '.css'
-                        );
+                            'file' => '/bundles/minify/css/' . $this->getOutput() . '.css',
+                        ];
                     }
                     // build javascript minify
                     if (isset($value['js'])) {
@@ -318,10 +322,10 @@ final class MinifyExtension extends \Twig_Extension
                         }
 
                         // build output array
-                        $output['internal']['js'] = array(
+                        $output['internal']['js'] = [
                             'filemtime' => filemtime($this->getOutputPath() . '/js/' . $this->getOutput() . '.js'),
-                            'file' => '/bundles/minify/js/' . $this->getOutput() . '.js'
-                        );
+                            'file' => '/bundles/minify/js/' . $this->getOutput() . '.js',
+                        ];
                     }
 
                     break;
@@ -330,7 +334,7 @@ final class MinifyExtension extends \Twig_Extension
                     break;
             }
         }
+
         return $output;
     }
-
 }

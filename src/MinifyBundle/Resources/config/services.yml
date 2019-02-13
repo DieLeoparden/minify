@@ -13,10 +13,9 @@ services:
         tags:
             - { name: kernel.event_listener, event: pimcore.system.cache.clear, method: onClear }
 
-    MinifyBundle\EventListener\DocumentRenderListener:
-        arguments: [ '@service_container' ]
+    MinifyBundle\EventListener\DocumentMinifyListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.view, method: onRender }
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: -115 }
 
     twig.minify:
         class: MinifyBundle\Twig\Extension\MinifyExtension
